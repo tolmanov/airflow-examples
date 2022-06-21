@@ -9,6 +9,7 @@ x-environment: &airflow_environment
   - AIRFLOW__CORE__STORE_SERIALIZED_DAGS=True
   - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
   - AIRFLOW__CORE__FERNET_KEY=${FERNET_KEY}
+  - AIRFLOW_CONN_MY_CONN=fs://admin:admin@my-host:8080/my-schema?path=/opt/airflow/data
 
 
 x-airflow-image: &airflow_image apache/airflow:2.3.0-python3.8
@@ -74,26 +75,35 @@ services:
       context: images/airflow-ml-base
     image: airflow-ml-base
     restart: "no"
-
-  predict:
-    build:
-      context: images/airflow-predict
-    image: airflow-predict
-    restart: "no"
+    depends_on:
+      - init
 
   download:
     build:
       context: images/airflow-download
     image: airflow-download
     restart: "no"
-
+    depends_on:
+      - ml_base
 
   preprocess:
     build:
       context: images/airflow-preprocess
     image: airflow-preprocess
     restart: "no"
+    depends_on:
+      - ml_base
+      - download
 
+  predict:
+    build:
+      context: images/airflow-predict
+    image: airflow-predict
+    restart: "no"
+    depends_on:
+      - ml_base
+      - download
+      - preprocess
 
 volumes:
   logs:

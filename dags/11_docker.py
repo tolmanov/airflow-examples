@@ -21,31 +21,28 @@ with DAG(
 ) as dag:
     download = DockerOperator(
         image="airflow-download",
-        command="/data/raw/{{ ds }}",
-        network_mode="bridge",
+        # network_mode="bridge",
         task_id="docker-airflow-download",
         do_xcom_push=False,
         mount_tmp_dir=False,
         # !!! HOST folder(NOT IN CONTAINER) replace with yours !!!
-        mounts=[Mount(source="/Users/mikhailmar/IdeaProjects/airflow-examples/data/", target="/data", type='bind')]
+        mounts=[Mount(source="/home/peter/Coding/julia/tekhno/ml/airflow-examples/data/", target="/data", type='bind')]
     )
 
     preprocess = DockerOperator(
         image="airflow-preprocess",
-        command="--input-dir /data/raw/{{ ds }} --output-dir /data/processed/{{ ds }}2",
         task_id="docker-airflow-preprocess",
         do_xcom_push=False,
         mount_tmp_dir=False,
-        mounts=[Mount(source="/Users/mikhailmar/IdeaProjects/airflow-examples/data/", target="/data", type='bind')]
+        mounts=[Mount(source="/home/peter/Coding/julia/tekhno/ml/airflow-examples/data/", target="/data", type='bind')]
     )
 
     predict = DockerOperator(
         image="airflow-predict",
-        command="--input-dir /data/processed/{{ ds }} --output-dir /data/predicted/{{ ds }}",
         task_id="docker-airflow-predict",
         do_xcom_push=False,
         mount_tmp_dir=False,
-        mounts=[Mount(source="/Users/mikhailmar/IdeaProjects/airflow-examples/data/", target="/data", type='bind')]
+        mounts=[Mount(source="/home/peter/Coding/julia/tekhno/ml/airflow-examples/data/", target="/data", type='bind')]
     )
 
     download >> preprocess >> predict
