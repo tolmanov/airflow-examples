@@ -23,6 +23,7 @@ with DAG(
         image="airflow-download",
         # network_mode="bridge",
         task_id="docker-airflow-download",
+        command=["/data/{{ ds }}/raw/"],
         do_xcom_push=False,
         mount_tmp_dir=False,
         # !!! HOST folder(NOT IN CONTAINER) replace with yours !!!
@@ -32,6 +33,7 @@ with DAG(
     preprocess = DockerOperator(
         image="airflow-preprocess",
         task_id="docker-airflow-preprocess",
+        command=["/data/{{ ds }}/raw/", "/data/{{ ds }}/processed/"],
         do_xcom_push=False,
         mount_tmp_dir=False,
         mounts=[Mount(source="/home/peter/Coding/julia/tekhno/ml/airflow-examples/data/", target="/data", type='bind')]
@@ -40,6 +42,7 @@ with DAG(
     predict = DockerOperator(
         image="airflow-predict",
         task_id="docker-airflow-predict",
+        command=["/data/{{ ds }}/processed/", "/data/{{ ds }}/predicted/"],
         do_xcom_push=False,
         mount_tmp_dir=False,
         mounts=[Mount(source="/home/peter/Coding/julia/tekhno/ml/airflow-examples/data/", target="/data", type='bind')]
